@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Форма для добавления нового ответа</h2>
+    <form action="{{ url_for('add_answer') }}" method="post">
+        <div class="form-floating mb-3">
+            <select class="form-control" id="theme_name" name="theme_name">
+                <option value="">Выберите тему</option>
+                {% for theme in themes %}
+                    <option value="{{ theme.name }}">{{ theme.name }}</option>
+                {% endfor %}
+            </select>
+            <label for="theme_name">Тема ответа</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="tags" name="tags" placeholder="Теги ответа" autocomplete="off">
+            <label for="tags">Теги ответа (через запятую)</label>
+        </div>
+        <div class="form-floating mb-3">
+            <textarea class="form-control" id="answer_text" name="answer_text" placeholder="Тело ответа" style="height: 100px"></textarea>
+            <label for="answer_text">Тело ответа</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+{% endblock %}

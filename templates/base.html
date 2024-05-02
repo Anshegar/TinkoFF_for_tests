@@ -1,27 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>My App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
 </head>
-
-
-
 
 <body>
     <header>
-        <nav>
-            <ul>
-                <li><a href="{{ url_for('index') }}">Home</a></li>
-                <li><a href="{{ url_for('add_theme') }}">About</a></li>
-                <li><a href="{{ url_for('add_answer') }}">About</a></li>
-                <li><a href="{{ url_for('search') }}">About</a></li>
-            </ul>
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+
+                <a class="navbar-brand" href="{{ url_for('index') }}"> ГЛАВНАЯ </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{{ url_for('search') }}">Доп инфа</a>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Темы
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('add_theme') }}">add_theme</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('update_theme') }}">update_theme</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('delete_theme') }}">delete_theme</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Ответы
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('add_answer') }}">add_answer</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('update_answer') }}">update_answer</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('delete_answer') }}">delete_answer</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </nav>
     </header>
+
     <main>
-        {% block content %}{% endblock %}
+        <div class="container">
+            <h2>Themes:</h2>
+            <div class="row align-items-center">
+                    {% for index, theme in themes_with_index %}
+                        <div class="col-2 theme-container" style="background-color: {{ 'white' if index % 2 == 0 else 'lightgrey' }};">
+                            <div class="theme-name">{{ theme.name }}</div>
+                        </div>
+                        {% if loop.index % 5 == 0 and not loop.last %}
+                            </div>
+                            <div class="row align-items-center">
+                        {% endif %}
+                    {% endfor %}
+            </div>
+            {% block content %}{% endblock %}
+        </div>
+
     </main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<!-- <script src="../static/bootstrap/js/bootstrap.min.js"></script> -->
 </body>
 </html>

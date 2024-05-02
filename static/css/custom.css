@@ -1,0 +1,10 @@
+.theme-container {
+    height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-name {
+    text-align: center;
+}

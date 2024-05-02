@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Обновление ответа</h2>
+    <form action="{{ url_for('update_answer') }}" method="post">
+        <div class="form-floating mb-3">
+            <input type="number" class="form-control" id="answer_id" name="answer_id" placeholder="ID ответа" autocomplete="off">
+            <label for="answer_id">ID ответа:</label>
+        </div>
+        <div class="form-floating mb-3">
+            <select class="form-control" id="theme_name" name="theme_name">
+                <option value="">Выберите тему</option>
+                {% for theme in themes %}
+                    <option value="{{ theme.name }}">{{ theme.name }}</option>
+                {% endfor %}
+            </select>
+            <label for="theme_name">Тема ответа</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="tags_to_add" name="tags_to_add" placeholder="Теги для добавления" autocomplete="off">
+            <label for="tags_to_add">Теги для добавления (через запятую)</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="tags_to_remove" name="tags_to_remove" placeholder="Теги для удаления" autocomplete="off">
+            <label for="tags_to_remove">Теги для удаления (через запятую)</label>
+        </div>
+        <div class="form-floating mb-3">
+            <textarea class="form-control" id="answer_text" name="answer_text" placeholder="Новое тело ответа" style="height: 100px"></textarea>
+            <label for="answer_text">Новое тело ответа</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Обновить</button>
+    </form>
+{% endblock %}

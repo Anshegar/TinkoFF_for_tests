@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Удаление ответа по ID</h2>
+    <form action="/delete_answer_by_id" method="post">
+        <div class="form-floating mb-3">
+            <input type="number" class="form-control" id="answer_id" name="answer_id" placeholder="ID ответа" autocomplete="off">
+            <label for="answer_id">ID ответа:</label>
+        </div>
+        <button type="submit" class="btn btn-danger">Удалить по ID</button>
+    </form>
+{% endblock %}

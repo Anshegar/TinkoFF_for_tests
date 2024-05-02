@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+
+    <h2>Удаление темы по ID</h2>
+    <form action="/delete_theme_by_id" method="post">
+        <div class="form-floating mb-3">
+            <input type="number" class="form-control" id="theme_id" name="theme_id" placeholder="ID темы" autocomplete="off">
+            <label for="theme_id">ID темы:</label>
+        </div>
+        <button type="submit" class="btn btn-danger">Удалить по ID</button>
+    </form>
+
+    <h2>Удаление темы по имени</h2>
+    <form action="/delete_theme_by_name" method="post">
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="theme_name" name="theme_name" placeholder="Имя темы" autocomplete="off">
+            <label for="theme_name">Имя темы:</label>
+        </div>
+        <button type="submit" class="btn btn-danger">Удалить по имени</button>
+    </form>
+
+
+{% endblock %}
