@@ -99,22 +99,24 @@ def index():
     if request.method == 'POST':
         theme_id = request.form.get('theme_id')
         tags = [tag.strip() for tag in request.form.get('tags').split(',') if tag.strip()]
-        #print("theme_id: ", theme_id, "\n tags", tags)
         
         if theme_id:
             main_results = Answer.query.filter(Answer.theme_id == theme_id).all()
             secondary_results = Answer.query.filter(Answer.theme_id != theme_id).filter(Answer.tags.in_(tags)).all()
             
             if tags:
-                exact_results = Answer.query.filter(Answer.theme_id == theme_id, Answer.tags.in_(tags)).all()
+                exact_results = Answer.query.filter(
+                    Answer.theme_id == theme_id,
+                    or_(*[Answer.tags.contains(tag) for tag in tags])
+                ).all()
                 exact_results.sort(key=lambda x: len(set(x.tags.split(',')).intersection(set(tags))), reverse=True)
                 print("theme_id: ", theme_id, "\n tags", tags, "\n exact_results: ", exact_results)
             else:
                 exact_results = []
-        else:
-            main_results = Answer.query.all()
-            secondary_results = Answer.query.filter(Answer.tags.in_(tags)).all()
-            exact_results = []
+        #else:
+        #main_results = Answer.query.all()
+        secondary_results = Answer.query.filter(Answer.tags.in_(tags)).all()
+        #exact_results = []
         
         main_results.sort(key=lambda x: len(set(x.tags.split(',')).intersection(set(tags))), reverse=True)
         secondary_results.sort(key=lambda x: len(set(x.tags.split(',')).intersection(set(tags))), reverse=True)
