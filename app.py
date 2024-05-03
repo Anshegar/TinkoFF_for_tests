@@ -43,7 +43,7 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask import Flask, render_template, redirect, url_for, request, jsonify
-
+from sqlalchemy import or_
 
 
 
@@ -72,14 +72,59 @@ class Answer(db.Model):
     theme_id = db.Column(db.Integer, db.ForeignKey('theme.id'))
     theme = db.relationship('Theme', backref=db.backref('answers', lazy='dynamic'))
 
-
-
-
-@app.route('/')
-def index():
+@app.route('/base')
+def base():
     themes = Theme.query.order_by(Theme.name).all()
     themes_with_index = [(index, theme) for index, theme in enumerate(themes)]
     return render_template('base.html', themes_with_index=themes_with_index)
+
+@app.route('/tests')
+def tests():
+    all_answers_for_theme = Answer.query.filter(Answer.theme_id == 6).all()
+    print(all_answers_for_theme)
+
+    #Выведите все ответы, содержащие тег 'один':
+
+    all_answers_with_tag = Answer.query.filter(Answer.tags.contains('один')).all()
+    print(all_answers_with_tag)
+
+    all_answers_with_theme_and_tag = Answer.query.filter(Answer.theme_id == 6, Answer.tags.contains('один')).all()
+    print(all_answers_with_theme_and_tag)
+
+    return redirect(request.referrer)
+
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        theme_id = request.form.get('theme_id')
+        tags = [tag.strip() for tag in request.form.get('tags').split(',') if tag.strip()]
+        #print("theme_id: ", theme_id, "\n tags", tags)
+        
+        if theme_id:
+            main_results = Answer.query.filter(Answer.theme_id == theme_id).all()
+            secondary_results = Answer.query.filter(Answer.theme_id != theme_id).filter(Answer.tags.in_(tags)).all()
+            
+            if tags:
+                exact_results = Answer.query.filter(Answer.theme_id == theme_id, Answer.tags.in_(tags)).all()
+                exact_results.sort(key=lambda x: len(set(x.tags.split(',')).intersection(set(tags))), reverse=True)
+                print("theme_id: ", theme_id, "\n tags", tags, "\n exact_results: ", exact_results)
+            else:
+                exact_results = []
+        else:
+            main_results = Answer.query.all()
+            secondary_results = Answer.query.filter(Answer.tags.in_(tags)).all()
+            exact_results = []
+        
+        main_results.sort(key=lambda x: len(set(x.tags.split(',')).intersection(set(tags))), reverse=True)
+        secondary_results.sort(key=lambda x: len(set(x.tags.split(',')).intersection(set(tags))), reverse=True)
+        #exact_results.sort(key=lambda x: len(set(x.tags.split(',')).intersection(set(tags))), reverse=True)
+
+        if exact_results or main_results or secondary_results:
+            return render_template('search_results.html', main_results=main_results, secondary_results=secondary_results, exact_results=exact_results)
+
+    themes = Theme.query.all()
+    return render_template('index.html', themes=themes)
 
 
 # 2. Форма для добавления новой темы

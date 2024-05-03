@@ -1,6 +1,14 @@
 {% extends 'base.html' %}
-
 {% block content %}
-    <h1>Welcome to my app!</h1>
-    <p>This is the index page.</p>
+
+<h2>Поиск ответа</h2>
+<form action="/" method="post">
+    <select name="theme_id">
+        {% for theme in themes %}
+            <option value="{{ theme.id }}">{{ theme.name }}</option>
+        {% endfor %}
+    </select>
+    <input type="text" name="tags" placeholder="Введите теги через запятую">
+    <button type="submit">Искать</button>
+</form>
 {% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Результаты поиска</h2>
+
+{% if exact_results %}{% endif %}
+<h3>Точные результаты:</h3>
+<ul>
+    {% for result in exact_results %}
+        <li>{{ result.answer }}</li>
+    {% endfor %}
+</ul>
+
+
+<h3>Основные результаты:</h3>
+<ul>
+    {% for result in main_results %}
+        <li>{{ result.answer }}</li>
+    {% endfor %}
+</ul>
+
+<h3>Дополнительные результаты:</h3>
+<ul>
+    {% for result in secondary_results %}
+        <li>{{ result.answer }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
