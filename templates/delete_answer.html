@@ -1,6 +1,20 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+
+    <h2>Удаление ответа из списка</h2>
+    <form action="delete_answer_by_id" method="post">
+        <select name="answer_id">
+            {% for answer_id, answer_answer in answers_with_ids %}
+                <option value="{{answer_id}}">{{answer_answer}}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Удалить</button>
+    </form>
+
+
+
     <h2>Удаление ответа по ID</h2>
     <form action="/delete_answer_by_id" method="post">
         <div class="form-floating mb-3">

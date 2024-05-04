@@ -111,22 +111,18 @@ def index():
         if theme_id:
             main_results = Answer.query.filter(Answer.theme_id == theme_id).all()
             
-
             if theme_id:
                 secondary_results = Answer.query.filter(Answer.theme_id != theme_id, Answer.tags.any(AnswerTag.tag.in_(tags))).all()
             else:
                 secondary_results = Answer.query.filter(Answer.tags.any(AnswerTag.tag.in_(tags))).all()
-
-            #secondary_results = Answer.query.filter(Answer.theme_id != theme_id).filter(Answer.tags.in_(tags)).all()
-            
+  
             if tags:
                 exact_results = Answer.query.filter(
                     Answer.theme_id == theme_id,
                     or_(*[Answer.tags.any(AnswerTag.tag == tag) for tag in tags])
                 ).all()
-
                 exact_results.sort(key=lambda x: len(set([tag.tag for tag in x.tags]).intersection(set(tags))), reverse=True)
-                #print("theme_id: ", theme_id, "\n tags", tags, "\n exact_results: ", exact_results)
+
             else:
                 exact_results = []
 
@@ -138,8 +134,8 @@ def index():
         themes = Theme.query.all()
         themes_with_ids = [(theme.id, f"{theme.id} - {theme.name}") for theme in themes]
         if exact_results or main_results or secondary_results:
-            #return render_template('search_results.html', main_results=main_results, secondary_results=secondary_results, exact_results=exact_results)
             return render_template('index.html', themes=themes, themes_with_ids=themes_with_ids, main_results=main_results, secondary_results=secondary_results, exact_results=exact_results)
+    
     themes = Theme.query.all()
     themes_with_ids = [(theme.id, f"{theme.id} - {theme.name}") for theme in themes]
     return render_template('index.html', themes=themes, themes_with_ids=themes_with_ids)
@@ -162,7 +158,9 @@ def add_theme():
 # 3. Удаление 
 @app.route('/delete_theme', methods=['GET', 'POST'])
 def delete_theme():
-    return render_template('delete_theme.html')
+    themes = Theme.query.all()
+    themes_with_ids = [(theme.id, f"{theme.id} - {theme.name}") for theme in themes]
+    return render_template('delete_theme.html', themes=themes, themes_with_ids=themes_with_ids)
 
 # - Удаление темы по ID
 @app.route('/delete_theme_by_id', methods=['POST'])
@@ -263,7 +261,9 @@ def add_answer():
 
 @app.route('/delete_answer', methods=['GET', 'POST'])
 def delete_answer():
-    return render_template('delete_answer.html')
+    answers = Answer.query.all()
+    answers_with_ids = [(answer.id, f"{answer.id} - {answer.answer}") for answer in answers]
+    return render_template('delete_answer.html', answers=answers, answers_with_ids=answers_with_ids)
 
 # Удаление ответа по ID
 @app.route('/delete_answer_by_id', methods=['POST'])

@@ -1,84 +1,87 @@
 {% extends 'base.html' %}
+
+
+{% block search %}
+
+<div class="container">
+    <h2>Поиск ответа</h2>
+    <form action="/" method="post">
+
+        <select name="theme_id">
+            {% for theme_id, theme_name in themes_with_ids %}
+                <option value="{{ theme_id }}">{{ theme_name }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="text" name="tags" placeholder="Введите теги через запятую">
+        <button type="submit">Искать</button>
+    </form>
+</div>
+
+{% endblock %}
+
+
+
 {% block content %}
 
-<h2>Поиск ответа</h2>
-<form action="/" method="post">
+<div class="container">
+    {% if main_results or secondary_results or exact_results %}
+    {% if exact_results %}{% endif %}
 
-    {#<select name="theme_id">
-        {% for theme in themes %}
-            <option value="{{ theme.id }}">{{ theme.name }}</option>
+
+    <h3>Точные результаты:</h3>
+    <ul>
+        {% for result in exact_results %}
+            <li class="card">
+                <details open>
+                    <summary>{{ loop.index }} - Тема : {{ result.theme.name }}</summary>
+                    <div class="card-body">
+                        <div class="container btn btn-light">
+                            <p>{{ result.answer }}</p>
+                        </div>
+                        <p>Теги: {% for tag in result.tags %}{{ tag.tag }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
+                    </div>
+                </details>
+            </li>
         {% endfor %}
-    </select> #}
+    </ul>
 
-    <select name="theme_id">
-        {% for theme_id, theme_name in themes_with_ids %}
-            <option value="{{ theme_id }}">{{ theme_name }}</option>
+    <h3>Основные результаты:</h3>
+    <ul>
+        {% for result in main_results %}
+            <li class="card">
+                <details>
+                    <summary>{{ loop.index }} - Тема : {{ result.theme.name }}</summary>
+                    <div class="card-body">
+                        <div class="container btn btn-light">
+                            <p>{{ result.answer }}</p>
+                        </div>
+                        <p>Теги: {% for tag in result.tags %}{{ tag.tag }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
+                    </div>
+                </details>
+            </li>
         {% endfor %}
-    </select>
+    </ul>
 
-    <input type="text" name="tags" placeholder="Введите теги через запятую">
-    <button type="submit">Искать</button>
-</form>
-
-
-{% if main_results or secondary_results or exact_results %}
-{% if exact_results %}{% endif %}
-
-
-<h3>Точные результаты:</h3>
-<ul>
-    {% for result in exact_results %}
-        <li class="card">
-            <details open>
-                <summary>Результат {{ loop.index }}</summary>
-                <div class="card-body">
-                    <h6>Тема ответа: {{ result.theme.name }}</h6>
-                    <div class="container btn btn-light">
-                        <p>{{ result.answer }}</p>
+    <h3>Дополнительные результаты:</h3>
+    <ul>
+        {% for result in secondary_results %}
+            <li class="card">
+                <details>
+                    <summary>{{ loop.index }} - Тема : {{ result.theme.name }}</summary>
+                    <div class="card-body">
+                        <div class="container btn btn-light">
+                            <p>{{ result.answer }}</p>
+                        </div>
+                        <p>Теги: {% for tag in result.tags %}{{ tag.tag }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
                     </div>
-                    <p>Теги: {% for tag in result.tags %}{{ tag.tag }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
-                </div>
-            </details>
-        </li>
-    {% endfor %}
-</ul>
+                </details>
+            </li>
+        {% endfor %}
+    </ul>
+        <!-- Аналогично для secondary_results и exact_results -->
+    {% endif %}
+</div>
 
-<h3>Основные результаты:</h3>
-<ul>
-    {% for result in main_results %}
-        <li class="card">
-            <details>
-                <summary>Результат {{ loop.index }}</summary>
-                <div class="card-body">
-                    <h6>Тема ответа: {{ result.theme.name }}</h6>
-                    <div class="container btn btn-light">
-                        <p>{{ result.answer }}</p>
-                    </div>
-                    <p>Теги: {% for tag in result.tags %}{{ tag.tag }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
-                </div>
-            </details>
-        </li>
-    {% endfor %}
-</ul>
-
-<h3>Дополнительные результаты:</h3>
-<ul>
-    {% for result in secondary_results %}
-        <li class="card">
-            <details>
-                <summary>Результат {{ loop.index }}</summary>
-                <div class="card-body">
-                    <h6>Тема ответа: {{ result.theme.name }}</h6>
-                    <div class="container btn btn-light">
-                        <p>{{ result.answer }}</p>
-                    </div>
-                    <p>Теги: {% for tag in result.tags %}{{ tag.tag }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
-                </div>
-            </details>
-        </li>
-    {% endfor %}
-</ul>
-    <!-- Аналогично для secondary_results и exact_results -->
-{% endif %}
 
 {% endblock %}

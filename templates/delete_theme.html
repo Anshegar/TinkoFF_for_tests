@@ -3,6 +3,17 @@
 
 {% block content %}
 
+    <h2>Удаление темы из списка</h2>
+        <form action="delete_theme_by_id" method="post">
+            <select name="theme_id">
+                {% for theme_id, theme_name in themes_with_ids %}
+                    <option value="{{ theme_id }}">{{ theme_name }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Удалить</button>
+        </form>
+
+
 
     <h2>Удаление темы по ID</h2>
     <form action="/delete_theme_by_id" method="post">
