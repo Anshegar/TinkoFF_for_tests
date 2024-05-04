@@ -135,11 +135,14 @@ def index():
         main_results.sort(key=lambda x: len(set([tag.tag for tag in x.tags]).intersection(set(tags))), reverse=True)
         secondary_results.sort(key=lambda x: len(set([tag.tag for tag in x.tags]).intersection(set(tags))), reverse=True)
 
+        themes = Theme.query.all()
+        themes_with_ids = [(theme.id, f"{theme.id} - {theme.name}") for theme in themes]
         if exact_results or main_results or secondary_results:
-            return render_template('search_results.html', main_results=main_results, secondary_results=secondary_results, exact_results=exact_results)
-
+            #return render_template('search_results.html', main_results=main_results, secondary_results=secondary_results, exact_results=exact_results)
+            return render_template('index.html', themes=themes, themes_with_ids=themes_with_ids, main_results=main_results, secondary_results=secondary_results, exact_results=exact_results)
     themes = Theme.query.all()
-    return render_template('index.html', themes=themes)
+    themes_with_ids = [(theme.id, f"{theme.id} - {theme.name}") for theme in themes]
+    return render_template('index.html', themes=themes, themes_with_ids=themes_with_ids)
 
 
 # 2. Форма для добавления новой темы
