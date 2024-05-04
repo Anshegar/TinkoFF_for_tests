@@ -65,12 +65,20 @@ class Theme(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text, unique=True)
     
+# Модель для связи "многие-ко-многим" между ответами и тегами
+class AnswerTag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'))
+    tag = db.Column(db.String(100))
+
 class Answer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    tags = db.Column(db.Text)
     answer = db.Column(db.Text)
     theme_id = db.Column(db.Integer, db.ForeignKey('theme.id'))
     theme = db.relationship('Theme', backref=db.backref('answers', lazy='dynamic'))
+    tags = db.relationship('AnswerTag', backref='answer', lazy='dynamic')
+
+
 
 @app.route('/base')
 def base():
@@ -102,25 +110,30 @@ def index():
         
         if theme_id:
             main_results = Answer.query.filter(Answer.theme_id == theme_id).all()
-            secondary_results = Answer.query.filter(Answer.theme_id != theme_id).filter(Answer.tags.in_(tags)).all()
+            
+
+            if theme_id:
+                secondary_results = Answer.query.filter(Answer.theme_id != theme_id, Answer.tags.any(AnswerTag.tag.in_(tags))).all()
+            else:
+                secondary_results = Answer.query.filter(Answer.tags.any(AnswerTag.tag.in_(tags))).all()
+
+            #secondary_results = Answer.query.filter(Answer.theme_id != theme_id).filter(Answer.tags.in_(tags)).all()
             
             if tags:
                 exact_results = Answer.query.filter(
                     Answer.theme_id == theme_id,
-                    or_(*[Answer.tags.contains(tag) for tag in tags])
+                    or_(*[Answer.tags.any(AnswerTag.tag == tag) for tag in tags])
                 ).all()
-                exact_results.sort(key=lambda x: len(set(x.tags.split(',')).intersection(set(tags))), reverse=True)
-                print("theme_id: ", theme_id, "\n tags", tags, "\n exact_results: ", exact_results)
+
+                exact_results.sort(key=lambda x: len(set([tag.tag for tag in x.tags]).intersection(set(tags))), reverse=True)
+                #print("theme_id: ", theme_id, "\n tags", tags, "\n exact_results: ", exact_results)
             else:
                 exact_results = []
-        #else:
-        #main_results = Answer.query.all()
-        secondary_results = Answer.query.filter(Answer.tags.in_(tags)).all()
-        #exact_results = []
-        
-        main_results.sort(key=lambda x: len(set(x.tags.split(',')).intersection(set(tags))), reverse=True)
-        secondary_results.sort(key=lambda x: len(set(x.tags.split(',')).intersection(set(tags))), reverse=True)
-        #exact_results.sort(key=lambda x: len(set(x.tags.split(',')).intersection(set(tags))), reverse=True)
+
+        secondary_results = Answer.query.filter(Answer.tags.any(AnswerTag.tag.in_(tags))).all()
+
+        main_results.sort(key=lambda x: len(set([tag.tag for tag in x.tags]).intersection(set(tags))), reverse=True)
+        secondary_results.sort(key=lambda x: len(set([tag.tag for tag in x.tags]).intersection(set(tags))), reverse=True)
 
         if exact_results or main_results or secondary_results:
             return render_template('search_results.html', main_results=main_results, secondary_results=secondary_results, exact_results=exact_results)
@@ -141,8 +154,6 @@ def add_theme():
     
     themes = Theme.query.all()
     return render_template('add_theme.html', themes=themes)
-
-
 
 
 # 3. Удаление 
@@ -173,7 +184,6 @@ def delete_theme_by_name():
         return "Тема успешно удалена"
     else:
         return "Такой темы не существует"
-
 
 
 @app.route('/update_theme', methods=['GET', 'POST'])
@@ -209,6 +219,10 @@ def update_theme_by_name():
 
 
 
+
+
+
+
 # --------------------------------------------------------------!!!!
 
 
@@ -217,7 +231,7 @@ def update_theme_by_name():
 def add_answer():
     if request.method == 'POST':
         theme_name = request.form['theme_name']
-        tags = request.form['tags'].split(',')
+        tags = [tag.strip() for tag in request.form['tags'].split(',') if tag.strip()]
         answer_text = request.form['answer_text']
 
         # Найдите или создайте тему
@@ -228,10 +242,15 @@ def add_answer():
             db.session.commit()
 
         # Создайте новый ответ
-        new_answer = Answer(tags=','.join(tags), answer=answer_text, theme=theme)
+        new_answer = Answer(answer=answer_text, theme=theme)
         db.session.add(new_answer)
-        db.session.commit()
 
+        # Добавьте теги для нового ответа
+        for tag in tags:
+            new_tag = AnswerTag(answer=new_answer, tag=tag)
+            db.session.add(new_tag)
+
+        db.session.commit()
         return redirect(url_for('add_answer'))
 
     themes = Theme.query.all()
@@ -249,6 +268,8 @@ def delete_answer_by_id():
     answer_id = request.form['answer_id']
     answer = Answer.query.get(answer_id)
     if answer:
+        # Удалите связанные теги
+        AnswerTag.query.filter_by(answer_id=answer.id).delete()
         db.session.delete(answer)
         db.session.commit()
         return "Ответ успешно удален"
@@ -275,14 +296,20 @@ def update_answer():
                 theme = Theme.query.filter_by(name=theme_name).first()
                 if theme:
                     answer.theme = theme
+                    
             if tags_to_add:
-                existing_tags = set(answer.tags.split(',')) if answer.tags else set()
-                new_tags = existing_tags.union(tags_to_add)
-                answer.tags = ','.join(new_tags)
+                for tag_name in tags_to_add:
+                    existing_tag = AnswerTag.query.filter_by(answer_id=answer_id, tag=tag_name).first()
+                    if not existing_tag:
+                        new_tag = AnswerTag(answer_id=answer_id, tag=tag_name)
+                        db.session.add(new_tag)
+
             if tags_to_remove:
-                existing_tags = answer.tags.split(',')
-                new_tags = [tag for tag in existing_tags if tag not in tags_to_remove]
-                answer.tags = ','.join(new_tags)
+                for tag_name in tags_to_remove:
+                    tag_to_remove = AnswerTag.query.filter_by(answer_id=answer_id, tag=tag_name).first()
+                    if tag_to_remove:
+                        db.session.delete(tag_to_remove)
+
             if answer_text:
                 answer.answer = answer_text
 
