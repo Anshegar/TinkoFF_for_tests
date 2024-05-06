@@ -17,5 +17,13 @@ details {
 
 /* Класс который позволит переносу строки указанному в БД отображаться в ответе поиска правильно, с переносами! */
 .pre-wrap {
-        white-space: pre-wrap; 
+        white-space: pre-wrap;
+}
+
+/* Чередуем цвета в выдаче  */
+.card:nth-child(odd) {
+    background-color: #f0f0f0; /* Белый цвет для нечетных элементов */
+}
+.card:nth-child(even) {
+    background-color: #e4e3e3; /* Серый цвет для четных элементов #f0f0f0*/
 }
