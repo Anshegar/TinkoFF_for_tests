@@ -34,10 +34,10 @@
         {% for result in exact_results %}
             <li class="card">
                 <details open>
-                    <summary>{{ loop.index }} - Тема : {{ result.theme.name }}</summary>
+                    <summary>{{ loop.index }} - Тема : {{ result.theme.name }} --- --- {% for tag in result.tags %}{{ tag.tag }}{% if not loop.last %}, {% endif %}{% endfor %}</summary>
                     <div class="card-body">
-                        <div class="container btn btn-light">
-                            <p>{{ result.answer }}</p>
+                        <div class="container  btn-light">
+                            <p>{{ result.answer|replace('\n', '<br>') }}</p>
                         </div>
                         <p>Теги: {% for tag in result.tags %}{{ tag.tag }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
                     </div>
@@ -51,10 +51,10 @@
         {% for result in main_results %}
             <li class="card">
                 <details>
-                    <summary>{{ loop.index }} - Тема : {{ result.theme.name }}</summary>
+                    <summary>{{ loop.index }} - Тема : {{ result.theme.name }} --- --- {% for tag in result.tags %}{{ tag.tag }}{% if not loop.last %}, {% endif %}{% endfor %}</summary>
                     <div class="card-body">
-                        <div class="container btn btn-light">
-                            <p>{{ result.answer }}</p>
+                        <div class="container  btn-light">
+                            <li class="pre-wrap">{{ result.answer}}</li>
                         </div>
                         <p>Теги: {% for tag in result.tags %}{{ tag.tag }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
                     </div>
@@ -68,10 +68,10 @@
         {% for result in secondary_results %}
             <li class="card">
                 <details>
-                    <summary>{{ loop.index }} - Тема : {{ result.theme.name }}</summary>
+                    <summary>{{ loop.index }} - Тема : {{ result.theme.name }} --- --- {% for tag in result.tags %}{{ tag.tag }}{% if not loop.last %}, {% endif %}{% endfor %}</summary>
                     <div class="card-body">
-                        <div class="container btn btn-light">
-                            <p>{{ result.answer }}</p>
+                        <div class="container  btn-light">
+                            <p>{{ result.answer|replace('\n', '<br>') }}</p>
                         </div>
                         <p>Теги: {% for tag in result.tags %}{{ tag.tag }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
                     </div>
