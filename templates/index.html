@@ -39,6 +39,7 @@
                         <div class="container  btn-light">
                             <p>{{ result.answer|replace('\n', '<br>') }}</p>
                         </div>
+                        <p>--------------------------------------------------------------------------------</p>
                         <p>Теги: {% for tag in result.tags %}{{ tag.tag }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
                     </div>
                 </details>
@@ -56,6 +57,7 @@
                         <div class="container  btn-light">
                             <li class="pre-wrap">{{ result.answer}}</li>
                         </div>
+                        <p>--------------------------------------------------------------------------------</p>
                         <p>Теги: {% for tag in result.tags %}{{ tag.tag }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
                     </div>
                 </details>
@@ -73,6 +75,7 @@
                         <div class="container  btn-light">
                             <p>{{ result.answer|replace('\n', '<br>') }}</p>
                         </div>
+                        <p>--------------------------------------------------------------------------------</p>
                         <p>Теги: {% for tag in result.tags %}{{ tag.tag }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
                     </div>
                 </details>
