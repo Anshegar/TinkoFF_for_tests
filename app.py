@@ -108,15 +108,21 @@ def index():
         theme_id = request.form.get('theme_id')
         tags = [tag.strip().lower() for tag in request.form.get('tags').split(',') if tag.strip()]
         
+
         if theme_id:
             main_results = Answer.query.filter(Answer.theme_id == theme_id).all()   
-            secondary_results = Answer.query.filter(Answer.tags.any(func.lower(AnswerTag.tag).in_(tags))).all()
+            # Получить все записи тегов из базы данных и привести их к нижнему регистру
+            all_tags = [tag.tag.lower() for tag in AnswerTag.query.all()]
+
+            # Найти пересечение тегов из формы и тегов из базы данных
+            common_tags = set(tags).intersection(set(all_tags))
+            print(tags, common_tags)
+
+            # Фильтровать ответы по общим тегам
+            secondary_results = [answer for answer in Answer.query.all() if any(tag.tag.lower() in common_tags for tag in answer.tags)]
 
             if tags:
-                exact_results = Answer.query.filter(
-                    Answer.theme_id == theme_id,
-                    or_(*[Answer.tags.any(func.lower(AnswerTag.tag) == tag) for tag in tags])
-                ).all()
+                exact_results = [answer for answer in Answer.query.filter(Answer.theme_id == theme_id).all() if any(tag.tag.lower() in tags for tag in answer.tags)]
                 exact_results.sort(key=lambda x: len(set([tag.tag.lower() for tag in x.tags]).intersection(set(tags))))
                 exact_results.reverse()
             else:
