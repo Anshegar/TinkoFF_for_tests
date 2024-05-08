@@ -44,7 +44,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask import Flask, render_template, redirect, url_for, request, jsonify
 from sqlalchemy import or_
-
+from sqlalchemy import func
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -106,35 +106,29 @@ def tests():
 def index():
     if request.method == 'POST':
         theme_id = request.form.get('theme_id')
-        tags = [tag.strip() for tag in request.form.get('tags').split(',') if tag.strip()]
+        tags = [tag.strip().lower() for tag in request.form.get('tags').split(',') if tag.strip()]
         
         if theme_id:
-            main_results = Answer.query.filter(Answer.theme_id == theme_id).all()
-            
-            if theme_id:
-                secondary_results = Answer.query.filter(Answer.theme_id != theme_id, Answer.tags.any(AnswerTag.tag.in_(tags))).all()
-            else:
-                secondary_results = Answer.query.filter(Answer.tags.any(AnswerTag.tag.in_(tags))).all()
-  
+            main_results = Answer.query.filter(Answer.theme_id == theme_id).all()   
+            secondary_results = Answer.query.filter(Answer.tags.any(func.lower(AnswerTag.tag).in_(tags))).all()
+
             if tags:
                 exact_results = Answer.query.filter(
                     Answer.theme_id == theme_id,
-                    or_(*[Answer.tags.any(AnswerTag.tag == tag) for tag in tags])
+                    or_(*[Answer.tags.any(func.lower(AnswerTag.tag) == tag) for tag in tags])
                 ).all()
-                exact_results.sort(key=lambda x: len(set([tag.tag for tag in x.tags]).intersection(set(tags))), reverse=True)
-
+                exact_results.sort(key=lambda x: len(set([tag.tag.lower() for tag in x.tags]).intersection(set(tags))))
+                exact_results.reverse()
             else:
                 exact_results = []
 
-        secondary_results = Answer.query.filter(Answer.tags.any(AnswerTag.tag.in_(tags))).all()
+            main_results.sort(key=lambda x: len(set([tag.tag.lower() for tag in x.tags]).intersection(set(tags))), reverse=True)
+            secondary_results.sort(key=lambda x: len(set([tag.tag.lower() for tag in x.tags]).intersection(set(tags))), reverse=True)
 
-        main_results.sort(key=lambda x: len(set([tag.tag for tag in x.tags]).intersection(set(tags))), reverse=True)
-        secondary_results.sort(key=lambda x: len(set([tag.tag for tag in x.tags]).intersection(set(tags))), reverse=True)
-
-        themes = Theme.query.all()
-        themes_with_ids = [(theme.id, f"{theme.id} - {theme.name}") for theme in themes]
-        if exact_results or main_results or secondary_results:
-            return render_template('index.html', themes=themes, themes_with_ids=themes_with_ids, main_results=main_results, secondary_results=secondary_results, exact_results=exact_results)
+            themes = Theme.query.all()
+            themes_with_ids = [(theme.id, f"{theme.id} - {theme.name}") for theme in themes]
+            if exact_results or main_results or secondary_results:
+                return render_template('index.html', themes=themes, themes_with_ids=themes_with_ids, main_results=main_results, secondary_results=secondary_results, exact_results=exact_results)
     
     themes = Theme.query.all()
     themes_with_ids = [(theme.id, f"{theme.id} - {theme.name}") for theme in themes]

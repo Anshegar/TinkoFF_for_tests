@@ -25,5 +25,9 @@ details {
     background-color: #f0f0f0; /* Белый цвет для нечетных элементов */
 }
 .card:nth-child(even) {
-    background-color: #e4e3e3; /* Серый цвет для четных элементов #f0f0f0*/
+    background-color: #f0f0f0; /* Серый цвет для четных элементов #f0f0f0    #e4e3e3*/
+}
+
+.card {
+    margin-bottom: 20px;
 }
